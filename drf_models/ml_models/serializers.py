@@ -18,8 +18,11 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class MLModelSerializer(serializers.ModelSerializer):
+
+    #tags = TagSerializer(many=True)
+
     class Meta:
         model = MlModel
         fields = ['title', 'tags', 'description', 'ml_model', 'inputs']
         extra_kwargs = {'ml_model': {'write_only': True}}
-        depth = 0
+        depth = 1

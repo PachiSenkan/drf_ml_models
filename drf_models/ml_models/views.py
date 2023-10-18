@@ -16,6 +16,20 @@ class MLModelViewSet(viewsets.ModelViewSet):
     serializer_class = MLModelSerializer
     queryset = MlModel.objects.all()
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        new_model = MlModel.objects.create(title=data['title'],
+                                           description=data['description'],
+                                           inputs=data['inputs'])
+        new_model.save()
+
+        for tag in data['tags']:
+            tag_obj = ModelTag.objects.get(tag=tag['tag'])
+            new_model.tags.add(tag_obj)
+
+        serializer = MLModelSerializer(new_model)
+        return Response(serializer.data)
+
     @action(detail=True,
             methods=['put'])
     def calculate(self, request, *args, **kwargs):
