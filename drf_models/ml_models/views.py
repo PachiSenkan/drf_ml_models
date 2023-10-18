@@ -10,6 +10,9 @@ from .ml_models_utils import calculate_diagnose_disease
 
 
 class MLModelViewSet(viewsets.ModelViewSet):
+    """
+    Вывести все, одну, удалить, обновить модели
+    """
     serializer_class = MLModelSerializer
     queryset = MlModel.objects.all()
 
@@ -26,6 +29,16 @@ class MLModelViewSet(viewsets.ModelViewSet):
             return Response({'Error': 'Мало вводных'})
 
 
+class TagAPIList(generics.ListCreateAPIView):
+    serializer_class = TagSerializer
+    queryset = ModelTag.objects.all()
+
+
+class TagAPICreate(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = TagSerializer
+    queryset = ModelTag.objects.all()
+
+
 class MLModelResults(APIView):
     """
     Получить результаты конкретной модели МО
@@ -40,13 +53,3 @@ class MLModelResults(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class TagAPIList(generics.ListCreateAPIView):
-    serializer_class = TagSerializer
-    queryset = ModelTag.objects.all()
-
-
-class TagAPICreate(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = TagSerializer
-    queryset = ModelTag.objects.all()
