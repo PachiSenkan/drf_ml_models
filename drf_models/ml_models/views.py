@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from rest_framework import generics, viewsets,status
+from rest_framework import generics, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +10,21 @@ from .models import MlModel, ModelTag
 from .serializers import MLModelSerializer, TagSerializer, UserSerializer
 from .ml_models_utils import calculate_diagnose_disease
 
+order_dict = {'desc': '-',
+              'asc': ''}
+
+
+class MLModelList(generics.ListCreateAPIView):
+    serializer_class = MLModelSerializer
+
+    def get_queryset(self):
+        if 'sort_by' in self.request.query_params:
+            order = self.request.query_params['sort_order']
+            order_field = f'{order_dict[order]}{self.request.query_params["sort_by"]}'
+            query = MlModel.objects.order_by(order_field)
+            return query
+
+        return MlModel.objects.all()
 
 class MLModelViewSet(viewsets.ModelViewSet):
     """
