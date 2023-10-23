@@ -116,7 +116,8 @@ LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Asia/Novosibirsk'
 
-USE_I18N = True
+#USE_I18N = True
+DATETIME_FORMAT = ['%Y-%m-%d %H:%M:%S']
 
 USE_TZ = True
 

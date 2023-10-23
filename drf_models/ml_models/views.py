@@ -1,11 +1,13 @@
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from rest_framework import generics, viewsets,status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+
 from .models import MlModel, ModelTag
-from .serializers import MLModelSerializer, TagSerializer, MLModelResultSerializer
+from .serializers import MLModelSerializer, TagSerializer, UserSerializer
 from .ml_models_utils import calculate_diagnose_disease
 
 
@@ -18,11 +20,11 @@ class MLModelViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
+        #print(data)
         new_model = MlModel.objects.create(title=data['title'],
                                            description=data['description'],
                                            inputs=data['inputs'])
         new_model.save()
-
         for tag in data['tags']:
             tag_obj = ModelTag.objects.get(tag=tag['tag'])
             new_model.tags.add(tag_obj)
@@ -53,17 +55,11 @@ class TagAPICreate(generics.RetrieveUpdateDestroyAPIView):
     queryset = ModelTag.objects.all()
 
 
-class MLModelResults(APIView):
-    """
-    Получить результаты конкретной модели МО
-    """
-    def get_object(self, pk):
-        return get_object_or_404(MlModel, pk=pk)
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    def post(self, request, pk):
-        ml_model = self.get_object(pk)
-        serializer = MLModelResultSerializer(ml_model, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
