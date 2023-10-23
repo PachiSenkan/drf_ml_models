@@ -10,6 +10,36 @@ from .models import MlModel, ModelTag
 from .serializers import MLModelSerializer, TagSerializer, UserSerializer
 from .ml_models_utils import calculate_diagnose_disease
 
+order_dict = {'desc': '-',
+              'asc': ''}
+
+
+class MLModelList(generics.ListCreateAPIView):
+    serializer_class = MLModelSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        #print(data)
+        new_model = MlModel.objects.create(title=data['title'],
+                                           description=data['description'],
+                                           inputs=data['inputs'])
+        new_model.save()
+        for tag in data['tags']:
+            tag_obj = ModelTag.objects.get(tag=tag['tag'])
+            new_model.tags.add(tag_obj)
+
+        serializer = MLModelSerializer(new_model)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        if 'sort_by' in self.request.query_params:
+            order = self.request.query_params['sort_order']
+            order_field = f'{order_dict[order]}{self.request.query_params["sort_by"]}'
+            query = MlModel.objects.order_by(order_field)
+            return query
+
+        return MlModel.objects.all()
+
 
 class MLModelViewSet(viewsets.ModelViewSet):
     """
