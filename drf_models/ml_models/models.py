@@ -28,7 +28,7 @@ class ModelTag(models.Model):
     """
     Тэг модели МО - сфера применения модели
     """
-    tag = models.CharField(max_length=80, blank=False, unique=True, verbose_name='Тэг модели')
+    name = models.CharField(max_length=80, blank=False, unique=True, verbose_name='Тэг модели')
 
     def __str__(self):
-        return self.tag
+        return self.name

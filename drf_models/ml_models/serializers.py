@@ -15,7 +15,8 @@ class TagSerializer(serializers.ModelSerializer):
 class MLModelSerializer(serializers.ModelSerializer):
 
     owner = serializers.ReadOnlyField(source='owner.username')
-    uploaded = serializers.DateTimeField(format='%d/%m/%Y %H:%M:%S')
+    uploaded = serializers.DateTimeField(format='%d/%m/%Y %H:%M:%S', read_only=True)
+
 
     class Meta:
         model = MlModel

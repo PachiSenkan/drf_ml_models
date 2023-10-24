@@ -19,17 +19,20 @@ class MLModelList(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        #print(data)
+        print(data)
+        print(self.request.user)
         new_model = MlModel.objects.create(title=data['title'],
                                            description=data['description'],
-                                           inputs=data['inputs'])
+                                           inputs=data['inputs'],
+                                           owner=self.request.user)
         new_model.save()
         for tag in data['tags']:
-            tag_obj = ModelTag.objects.get(tag=tag['tag'])
+            tag_obj = ModelTag.objects.get(name=tag['name'])
             new_model.tags.add(tag_obj)
 
         serializer = MLModelSerializer(new_model)
-        return Response(serializer.data)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         if 'sort_by' in self.request.query_params:
@@ -41,6 +44,11 @@ class MLModelList(generics.ListCreateAPIView):
         return MlModel.objects.all()
 
 
+class MLModelDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MlModel.objects.all()
+    serializer_class = MLModelSerializer
+
+
 class MLModelViewSet(viewsets.ModelViewSet):
     """
     Вывести все, одну, удалить, обновить модели
@@ -48,9 +56,14 @@ class MLModelViewSet(viewsets.ModelViewSet):
     serializer_class = MLModelSerializer
     queryset = MlModel.objects.all()
 
+    def perform_create(self, serializer):
+        print(f'PERFORM CREATE{self.request.user}')
+        serializer.save(owner=self.request.user)
+
     def create(self, request, *args, **kwargs):
         data = request.data
-        #print(data)
+        print(data)
+        print(self.request.user)
         new_model = MlModel.objects.create(title=data['title'],
                                            description=data['description'],
                                            inputs=data['inputs'])
@@ -60,6 +73,7 @@ class MLModelViewSet(viewsets.ModelViewSet):
             new_model.tags.add(tag_obj)
 
         serializer = MLModelSerializer(new_model)
+        serializer.save(owner=self.request.user)
         return Response(serializer.data)
 
     @action(detail=True,
