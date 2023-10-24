@@ -23,8 +23,10 @@ class MLModelList(generics.ListCreateAPIView):
         print(self.request.user)
         new_model = MlModel.objects.create(title=data['title'],
                                            description=data['description'],
-                                           inputs=data['inputs'],
-                                           owner=self.request.user)
+                                           inputs=data['inputs'])#,
+                                           #owner=self.request.user)
+        if str(self.request.user) != 'AnonymousUser':
+            new_model.owner = self.request.user
         new_model.save()
         for tag in data['tags']:
             tag_obj = ModelTag.objects.get(name=tag['name'])
